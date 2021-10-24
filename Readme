@@ -1,0 +1,137 @@
+Descripcion:
+
+  Cree una solucion en Visual Studio 2017 con un proyecto web API en visual studio 2017.   
+    No utilize inyeccion de dependencias por cuestiones de tiempo. La usaria para mantener las clases con bajo acoplamiento (Unity o Ninject pueden ser usados). 
+  Api
+    Dentro de ese proyecto genere un controller llamado CreditLineController. 
+      Dentro del controller esta el metodo GetCreditLine
+    Se definio el modelo CreditLine que tiene los atributos que sera usado en el request de credit line.
+  Manager
+    La clase manager (CreditLineManager) es invocada por el controller usando el metodo ApproveCreditLine que recive de parametro el modelo con los valores del request. Dentro 
+    del manager se revisa se mandan llamar los metodos de la capa de negocios implementados por la clase CreditLineBL.
+  Logica de negocios
+    Se creo una interfaz donde se definen las firmas de los metodos que implementan la lógica de negocios (ICreditLineBL). Esta interfaz es implementada por la clase
+    CreditLineBL.  
+  Persistencia de datos
+    Se usa un archivo de texto para simular el guardar la informacion de las peticiones donde se almacenan los campos de la siguiente forma
+      CustomerId, requestTime,CreditApproved,countTry,errorCount,rejectedcount.
+      Este archivo sera actualizado por acada peticion de linea de credito.
+
+Instalacion:
+Descargar el repositorio y abrir la solucion con Visual Studio 2017. Compilar la solucion y ejecutarla.
+
+Pruebas  
+  Las pruebas fueron realizadsa usando postman y ejecutando las llamadas al metodo expuesto por la API desarrollada.
+  A continuacion se listan los casos de pruebas ejecutados:
+  1:Bad request no customer id in the parameters:
+    http://localhost:64018/api/creditline/GetCreditLine
+    parameters
+    { 
+     "FoundingType":"SME",
+     "CashBalance": 4000,
+     "MonthlyRevenue":13000, 
+     "RequesteCreditLine":6000 
+    }
+
+  2A:Valid credit request SME
+
+  http://localhost:64018/api/creditline/GetCreditLine
+  parameters
+  { 
+   "CustomerId":"Javier",	
+   "FoundingType":"SME",
+   "CashBalance": 4000,
+   "MonthlyRevenue":13000, 
+   "RequesteCreditLine":2000 
+  }
+
+  2B:Valid credit request Startup
+  http://localhost:64018/api/creditline/GetCreditLine
+  parameters
+  { 
+   "CustomerId":"JavierS",	
+   "FoundingType":"Startup",
+   "CashBalance": 10000,
+   "MonthlyRevenue":13000, 
+   "RequesteCreditLine":3000 
+  }
+
+  3: Credit already approved second try will return the same limit already approved
+  http://localhost:64018/api/creditline/GetCreditLine
+  {
+      "CustomerId":"Javier",
+   "FoundingType":"SME",
+   "CashBalance": 4000,
+   "MonthlyRevenue":13000, 
+   "RequesteCreditLine":4000 
+   }
+
+   4: credit within 30 seconds after rejected
+   http://localhost:64018/api/creditline/GetCreditLine
+  {
+      "CustomerId":"Javier",
+   "FoundingType":"SME",
+   "CashBalance": 4000,
+   "MonthlyRevenue":13000, 
+   "RequesteCreditLine":4000 
+   }
+
+   {
+      "CustomerId":"Javier",
+   "FoundingType":"SME",
+   "CashBalance": 4000,
+   "MonthlyRevenue":13000, 
+   "RequesteCreditLine":4000 
+   }
+
+   5: credit request more than 3 rejects
+    http://localhost:64018/api/creditline/GetCreditLine
+      1
+      {
+       "CustomerId":"Javier",
+       "FoundingType":"SME",
+       "CashBalance": 4000,
+       "MonthlyRevenue":13000, 
+       "RequesteCreditLine":4000 
+       }
+       2
+       {
+          "CustomerId":"Javier",
+       "FoundingType":"SME",
+       "CashBalance": 4000,
+       "MonthlyRevenue":13000, 
+       "RequesteCreditLine":4000 
+       }
+       3
+        {
+          "CustomerId":"Javier",
+       "FoundingType":"SME",
+       "CashBalance": 4000,
+       "MonthlyRevenue":13000, 
+       "RequesteCreditLine":4000 
+       }
+
+  6: credit approved more than 3 within 2 mins
+
+   http://localhost:64018/api/creditline/GetCreditLine
+   {
+    "CustomerId":"JavierSA",	
+   "FoundingType":"Startup",
+   "CashBalance": 10000,
+   "MonthlyRevenue":3000, 
+   "RequesteCreditLine":1000 
+   }
+   {
+    "CustomerId":"JavierSA",	
+   "FoundingType":"Startup",
+   "CashBalance": 10000,
+   "MonthlyRevenue":3000, 
+   "RequesteCreditLine":1000 
+   }
+   {
+    "CustomerId":"JavierSA",	
+   "FoundingType":"Startup",
+   "CashBalance": 10000,
+   "MonthlyRevenue":3000, 
+   "RequesteCreditLine":1000 
+   }
